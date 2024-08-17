@@ -85,7 +85,7 @@ def video_monitoring():
     object_count = {cls: 0 for cls in classes}
 
     # Open a video file
-    video_path = "4K Road traffic.mp4"  # Replace with your video path
+    video_path = "trafficVideo.mp4"  # Replace with your video path
     cap = cv2.VideoCapture(video_path)
 
     if not cap.isOpened():
