@@ -38,7 +38,7 @@ def calculate_iou(box1, box2):
 
 def imageTest():
     # Predict on a new image
-    image_path = "Car01.jpg"  # Replace with your image path
+    image_path = "Car01.jpg"  # Replace with image path
     input_image = preprocess_image(image_path)
 
     with torch.no_grad():
@@ -85,7 +85,7 @@ def video_monitoring():
     object_count = {cls: 0 for cls in classes}
 
     # Open a video file
-    video_path = "trafficVideo.mp4"  # Replace with your video path
+    video_path = "trafficVideo.mp4"  # Replace with video path
     cap = cv2.VideoCapture(video_path)
 
     if not cap.isOpened():
