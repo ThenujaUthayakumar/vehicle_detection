@@ -1,0 +1,567 @@
+{
+	"info": {
+		"_postman_id": "f3296aa5-35d6-43c0-8d44-1a46fe04cd6e",
+		"name": "Vehicle Detection APIs",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "37656541"
+	},
+	"item": [
+		{
+			"name": "user create",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"check\",\r\n    \"role\": \"admin\",\r\n    \"password\":\"123\",\r\n    \"name\": \"Thenu\",\r\n    \"phone_number\": \"1234567890\",\r\n    \"address\": \"123 Main St\",\r\n    \"email\": \"thenu@example.com\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/signup",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"signup"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "user update",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "access-token",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"check\",\r\n    \"role\": \"admin\",\r\n    \"password\":\"123\",\r\n    \"name\": \"Thenu\",\r\n    \"phone_number\": \"1234567890\",\r\n    \"address\": \"123 Main St\",\r\n    \"email\": \"thenu@example.com\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/users/1",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"users",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "user login",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "grant_type",
+							"value": "password",
+							"type": "text"
+						},
+						{
+							"key": "username",
+							"value": "kavika",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "123",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/login",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "user get",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8000/users?search_key=thenu",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"users"
+					],
+					"query": [
+						{
+							"key": "search_key",
+							"value": "thenu"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "user download",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8000/users/download?search_key=sdsds",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"users",
+						"download"
+					],
+					"query": [
+						{
+							"key": "search_key",
+							"value": "sdsds"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "user delete",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "video create",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJrYXZpa2EiLCJ1c2VyX2lkIjoxLCJleHAiOjE3MjU5OTQ0ODN9.Yee2LDMHSWLhEoTFbSxGHx6K06FN_JxdygnEwvzyMZI",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "videoTitle",
+							"value": "Check",
+							"type": "text"
+						},
+						{
+							"key": "videoLocation",
+							"value": "location",
+							"type": "text"
+						},
+						{
+							"key": "video",
+							"type": "file",
+							"src": "/C:/Users/tamiz/Downloads/Final Project/vehicle_detection/trafficVideo.mp4"
+						},
+						{
+							"key": "user_id",
+							"value": "1",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/video",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"video"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "video update",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJrYXZpa2EiLCJ1c2VyX2lkIjoxLCJleHAiOjE3MjYwMzcwODN9.jcd5nEcDeTDVN-9tQPLvWedYJTmAKlRb0AmKKbReUdg",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "videoTitle",
+							"value": "Town Footage",
+							"type": "text"
+						},
+						{
+							"key": "videoLocation",
+							"value": "Jaffna",
+							"type": "text"
+						},
+						{
+							"key": "video",
+							"type": "file",
+							"src": "/C:/Users/tamiz/Downloads/Final Project/vehicle_detection/trafficVideo.mp4"
+						},
+						{
+							"key": "id",
+							"value": "1",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/video/update",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"video",
+						"update"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "video get",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJrYXZpa2EiLCJ1c2VyX2lkIjoxLCJleHAiOjE3MjU5OTU5NzN9.neUMRgS8twl3UPj48KJatfzmBpX7wSEU6v_FaYJ9zM4",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8000/video?search_key=thenu",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"video"
+					],
+					"query": [
+						{
+							"key": "search_key",
+							"value": "thenu"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "video download",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8000/video/download?search_key=thenu",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"video",
+						"download"
+					],
+					"query": [
+						{
+							"key": "search_key",
+							"value": "thenu"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "video delete",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJLYXZpIiwidXNlcl9pZCI6MSwiZXhwIjoxNzI1OTk5Mjg2fQ.81Ixuc7MBpmOf_TlfGqUJdp7F5oeDEwLjqbhekMOfig",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8000/video/3",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"video",
+						"3"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "video status change",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJrYXZpa2EiLCJ1c2VyX2lkIjoxLCJleHAiOjE3MjYwMzcwODN9.jcd5nEcDeTDVN-9tQPLvWedYJTmAKlRb0AmKKbReUdg",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id\":1,\r\n    \"status\":1\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/video/status-change",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"video",
+						"status-change"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Vehicle Counts GET (Vehicle Name Wise)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8000/vehicle-counts?vehicle_name=Car",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"vehicle-counts"
+					],
+					"query": [
+						{
+							"key": "vehicle_name",
+							"value": "Car"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Vehicle Counts Download (Vehicle Name Wise)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8000/vehicle-counts/download?vehicle_name=Car",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"vehicle-counts",
+						"download"
+					],
+					"query": [
+						{
+							"key": "vehicle_name",
+							"value": "Car"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "All Vehicle Counts Records GET",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8000/vehicle-counts/all?",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"vehicle-counts",
+						"all"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "All Vehicle Counts Records Download",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8000/vehicle-counts/all/download",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"vehicle-counts",
+						"all",
+						"download"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
