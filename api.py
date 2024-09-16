@@ -1,7 +1,7 @@
-from fastapi import FastAPI, HTTPException, Depends, Form,status, Depends, HTTPException, Query,Response,File, UploadFile
+from fastapi import FastAPI, APIRouter,HTTPException, Depends, Form,status, Depends, HTTPException, Query,Response,File, UploadFile
 from sqlalchemy.orm import Session
 from models import engine, SessionLocal, init_db,User,VehicleCount,UserRole,VideoFootage
-from schemas import UserCreate, UserRead, VehicleCountResponse,UserUpdate,VideoCreate,VideoUpdate,VideoStatusChangeRequest,VideoRead,VideoDelete,VideoStatusChange,VehicleCountResponseAll
+from schemas import UserCreate, UserRead,PaginatedUserResponse,PaginatedVideoResponse,VehicleCountResponse,UserUpdate,VideoCreate,VideoUpdate,VideoStatusChangeRequest,VideoRead,VideoDelete,VideoStatusChange,VehicleCountResponseAll,VehicleCountsResponse
 from crud import create_user, get_user_by_username, update_user, create_video_crud,get_current_user_id
 from security import verify_password, hash_password
 from typing import List, Optional
@@ -10,6 +10,7 @@ from sqlalchemy import func, or_
 from datetime import datetime,timedelta,date
 import pandas as pd
 from io import BytesIO
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.exc import IntegrityError,SQLAlchemyError
 from jose import JWTError, jwt
 import os
@@ -22,7 +23,14 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30  # Token expiration time in minutes
 
 #call fastapi
 app = FastAPI()
-
+router = APIRouter()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins (change "*" to specific domains in production)
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods (POST, GET, etc.)
+    allow_headers=["*"],  # Allows all headers
+)
 #authentication token
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
@@ -90,29 +98,43 @@ def update_user_endpoint(
     return updated_user
 
 #users GET with search
-@app.get("/users", response_model=List[UserRead])
+@app.get("/users", response_model=PaginatedUserResponse)
 def get_users(
     db: Session = Depends(get_db),
-    search_key: Optional[str] = Query(None, description="Search key to filter users by email, first name, or last name")
+    search_key: Optional[str] = Query(None, description="Search key to filter users by email, first name, last name, username, address, or phone number"),
+    page: int = Query(1, ge=1, description="Page number for pagination"),
+    limit: int = Query(10, ge=1, le=100, description="Number of items per page")
 ):
+    query = db.query(User)
+
     if search_key:
         # Filter users based on the search key
-        users = db.query(User).filter(
+        query = query.filter(
             (User.first_name.ilike(f"%{search_key}%")) |
             (User.last_name.ilike(f"%{search_key}%")) |
             (User.username.ilike(f"%{search_key}%")) |
             (User.email.ilike(f"%{search_key}%")) |
             (User.address.ilike(f"%{search_key}%")) |
-            (User.phone_number.ilike(f"%{search_key}%")) 
-        ).all()
-    else:
-        # Return all users if no search key is provided
-        users = db.query(User).all()
+            (User.phone_number.ilike(f"%{search_key}%"))
+        )
+
+    # Apply sorting by ID in ascending order
+    sorted_query = query.order_by(User.id.asc())
+
+    # Apply pagination
+    total_count = sorted_query.count()
+    users = sorted_query.offset((page - 1) * limit).limit(limit).all()
 
     if not users:
         raise HTTPException(status_code=404, detail="No users found")
 
-    return users
+    return PaginatedUserResponse(
+        total_count=total_count,
+        page=page,
+        limit=limit,
+        data=users
+    )
+
 
 #users download in excel
 @app.get("/users/download")
@@ -187,14 +209,6 @@ def delete_user_endpoint(
         raise HTTPException(status_code=500, detail="Database error occurred")
     
     return user_to_delete
-
-#get users
-@app.get("/admin/users", response_model=List[UserRead])
-def read_users(db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)):
-    if not validate_admin(token):
-        raise HTTPException(status_code=403, detail="Not authorized to perform this action")
-
-    return db.query(User).all()
 
 # User Login
 def create_access_token(data: dict, expires_delta: timedelta = None):
@@ -291,41 +305,45 @@ def update_video(
         raise HTTPException(status_code=500, detail=f"Error updating video: {e}")
     
 #vide get with search
-@app.get("/video", response_model=List[VideoRead])
+@app.get("/video", response_model=PaginatedVideoResponse)
 def get_videos(
     db: Session = Depends(get_db),
-    search_key: Optional[str] = Query(None, description="Search key to filter videos details or users details")
+    search_key: Optional[str] = Query(None, description="Search key to filter video or user details"),
+    page: int = Query(1, ge=1, description="Page number for pagination"),
+    limit: int = Query(10, ge=1, le=100, description="Number of items per page for pagination")
 ):
-    try:
-        query = db.query(VideoFootage).join(User, VideoFootage.user_id == User.id)
+    query = db.query(VideoFootage).join(User, VideoFootage.user_id == User.id)
 
-        if search_key:
-            query = query.filter(
-                or_(
-                    VideoFootage.video_title.ilike(f"%{search_key}%"),
-                    VideoFootage.video_location.ilike(f"%{search_key}%"),
-                    VideoFootage.reference_number.ilike(f"%{search_key}%"),
-                    User.username.ilike(f"%{search_key}%"),
-                    User.email.ilike(f"%{search_key}%"),
-                    User.first_name.ilike(f"%{search_key}%"),
-                    User.last_name.ilike(f"%{search_key}%"),
-                    User.address.ilike(f"%{search_key}%"),
-                    User.phone_number.ilike(f"%{search_key}%")
-                )
+    if search_key:
+        query = query.filter(
+            or_(
+                VideoFootage.video_title.ilike(f"%{search_key}%"),
+                VideoFootage.video_location.ilike(f"%{search_key}%"),
+                VideoFootage.reference_number.ilike(f"%{search_key}%"),
+                User.username.ilike(f"%{search_key}%"),
+                User.email.ilike(f"%{search_key}%"),
+                User.first_name.ilike(f"%{search_key}%"),
+                User.last_name.ilike(f"%{search_key}%"),
+                User.address.ilike(f"%{search_key}%"),
+                User.phone_number.ilike(f"%{search_key}%")
             )
+        )
 
-        videos = query.all()
+    sorted_query = query.order_by(VideoFootage.id.asc())
 
-        if not videos:
-            raise HTTPException(status_code=404, detail="No videos found")
-        
-        return [VideoRead.from_orm(video) for video in videos]
+    total_count = sorted_query.count()
+    videos = sorted_query.offset((page - 1) * limit).limit(limit).all()
 
-    except HTTPException as e:
-        raise e
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error fetching videos: {str(e)}")
-    
+    if not videos:
+        raise HTTPException(status_code=404, detail="No videos found")
+
+    return PaginatedVideoResponse(
+        total_count=total_count,
+        page=page,
+        limit=limit,
+        data=videos
+    )
+
 #download with search
 @app.get("/video/download")
 def download_videos(
@@ -553,10 +571,12 @@ def get_vehicle_counts_excel(
         raise HTTPException(status_code=500, detail=f"Error generating Excel file: {e}")
 
 # GET All Vehicle Counts Details
-@app.get("/vehicle-counts/all", response_model=List[VehicleCountResponseAll])
+@app.get("/vehicle-counts/all", response_model=VehicleCountsResponse)
 def get_vehicle_counts(
     db: Session = Depends(get_db),
-    search_key: Optional[str] = Query(None, description="Search key to filter vehicle name or video title")
+    vehicle_name: Optional[str] = Query(None, description="Search key to filter vehicle name or video title"),
+    page: int = Query(1, ge=1, description="Page number for pagination"),
+    limit: int = Query(10, ge=1, le=100, description="Number of items per page")
 ):
     try:
         query = db.query(
@@ -565,24 +585,32 @@ def get_vehicle_counts(
             func.date(VehicleCount.created_at).label('date'),
             VideoFootage.video_title.label('video_title'),
             VehicleCount.created_at.label('created_at'),
-            VehicleCount.updated_at.label('updated_at')
+            VehicleCount.updated_at.label('updated_at'),
+            VehicleCount.id.label('id')
         ).join(VideoFootage, VehicleCount.video_id == VideoFootage.id)
 
-        if search_key:
+        if vehicle_name:
             query = query.filter(
                 or_(
-                    VehicleCount.vehicle_name.ilike(f"%{search_key}%"),
-                    VideoFootage.video_title.ilike(f"%{search_key}%")
+                    VehicleCount.vehicle_name.ilike(f"%{vehicle_name}%"),
+                    VideoFootage.video_title.ilike(f"%{vehicle_name}%")
                 )
             )
 
-        results = query.group_by(
+        grouped_query = query.group_by(
             VehicleCount.vehicle_name,
             func.date(VehicleCount.created_at),
             VideoFootage.video_title,
             VehicleCount.created_at,
-            VehicleCount.updated_at
-        ).all()
+            VehicleCount.updated_at,
+            VehicleCount.id
+        )
+
+        sorted_query = grouped_query.order_by(VehicleCount.id.asc())
+
+        # Apply pagination
+        total_count = sorted_query.count()
+        results = sorted_query.offset((page - 1) * limit).limit(limit).all()
 
         vehicle_counts = [
             VehicleCountResponseAll(
@@ -591,20 +619,27 @@ def get_vehicle_counts(
                 date=result.date,
                 video_title=result.video_title,
                 created_at=result.created_at,
-                updated_at=result.updated_at
+                updated_at=result.updated_at,
+                id=result.id
             )
             for result in results
         ]
         
-        return vehicle_counts
+        return VehicleCountsResponse(
+            total_count=total_count,
+            page=page,
+            limit=limit,
+            data=vehicle_counts
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching data: {e}")
+
 
 # All Vehicle Counts Details Download
 @app.get("/vehicle-counts/all/download")
 def download_vehicle_counts(
     db: Session = Depends(get_db),
-    search_key: Optional[str] = Query(None, description="Search key to filter vehicle name or video title")
+    vehicle_name: Optional[str] = Query(None, description="Search key to filter vehicle name or video title")
 ):
     try:
         query = db.query(
@@ -616,11 +651,11 @@ def download_vehicle_counts(
             VehicleCount.updated_at.label('updated_at')
         ).join(VideoFootage, VehicleCount.video_id == VideoFootage.id)
 
-        if search_key:
+        if vehicle_name:
             query = query.filter(
                 or_(
-                    VehicleCount.vehicle_name.ilike(f"%{search_key}%"),
-                    VideoFootage.video_title.ilike(f"%{search_key}%")
+                    VehicleCount.vehicle_name.ilike(f"%{vehicle_name}%"),
+                    VideoFootage.video_title.ilike(f"%{vehicle_name}%")
                 )
             )
 

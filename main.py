@@ -47,7 +47,7 @@ sri_lanka_tz = pytz.timezone('Asia/Colombo')
 
 def is_within_operating_hours(current_time):
     local_time = current_time.astimezone(sri_lanka_tz)
-    return 6 <= local_time.hour < 24
+    return 6 <= local_time.hour < 21
 
 def get_video_from_db():
     """ Fetch video with status 1 from the database """
@@ -81,7 +81,7 @@ def save_vehicle_count_to_db(video_id, object_count):
         print(f"Error saving to database: {e}")
 
 def video_monitoring():
-    global start_time, object_count  # Declare as global to modify in this function
+    global start_time, object_count
 
     # Fetch the video from the database
     video_path, video_id = get_video_from_db()
@@ -108,21 +108,17 @@ def video_monitoring():
 
         current_frame += 1
 
-        # Process only the last frame of each second
         if current_frame % frame_rate == 0:
             current_time = datetime.now()
             
-            # Check if current time is within the operating hours
             if is_within_operating_hours(current_time):
                 input_image = preprocess_frame(frame)
 
-                # Perform object detection
                 with torch.no_grad():
                     prediction = model(input_image)[0]
 
                 processed_prediction = preprocess_bbox(prediction)
 
-                # Extract boxes, scores, and labels from prediction
                 boxes = processed_prediction['boxes'].cpu().numpy()
                 scores = processed_prediction['scores'].cpu().numpy()
                 labels = processed_prediction['labels'].cpu().numpy()
@@ -148,7 +144,6 @@ def video_monitoring():
                     # Clear the object_count dictionary after saving
                     object_count = {}
 
-            # Display counts in the frame (for debugging purposes)
             count_text = "\n".join([f"{cls}: {count}" for cls, count in object_count.items()])
             y0, dy = 12, 15
 

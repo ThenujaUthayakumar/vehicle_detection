@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from datetime import datetime,date
 from enum import Enum
+from typing import List
 
 
 # Users
@@ -44,6 +45,12 @@ class UserRead(BaseModel):
 
     class Config:
         from_attributes = True
+
+class PaginatedUserResponse(BaseModel):
+    total_count: int
+    page: int
+    limit: int
+    data: List[UserRead]
 
 # ===================================================================================================
 
@@ -105,6 +112,11 @@ class VideoStatusChangeRequest(BaseModel):
     id: int
     status: int
 
+class PaginatedVideoResponse(BaseModel):
+    total_count: int
+    page: int
+    limit: int
+    data: List[VideoRead]
 # ====================================================
 
 class VehicleCountResponse(BaseModel):
@@ -121,8 +133,15 @@ class VehicleCountResponseAll(BaseModel):
     total_counts: int
     date: date
     video_title: str
+    id: int
     created_at: datetime
     updated_at: datetime
 
     class Config:
         from_attributes = True
+
+class VehicleCountsResponse(BaseModel):
+    total_count: int
+    page: int
+    limit: int
+    data: List[VehicleCountResponseAll]
